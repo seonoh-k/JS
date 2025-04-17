@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    프로미스 체이닝 : 여러개의 프로미스를 연결하는 개념
+    -> 순서대로 작업을 처리하기 위해 사용
+
+    체이닝 실행 순서
+    1. 프로미스 객체의 요청 성공 시 then이 실행
+    2. 맨처음 작성해둔 then 실행
+</body>
+<script>
+    new Promise(function(resolve, reject){
+        setTimeout(() => resolve(1), 1000);
+    }).then(function(result) {
+        console.log("1번");
+        console.log(result);
+        return result * 2;
+    }).then(function(result){
+        console.log("2번");
+        console.log(result);
+        return result * 2;
+    }).then(function(result){
+        console.log("3번");
+        console.log(result);
+        return result * 2;
+    })
+</script>
+</html>

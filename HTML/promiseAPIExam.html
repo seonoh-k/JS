@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💫 DummyJSON Explorer - 프로미스 마스터</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%);
+            --secondary-gradient: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+            --card-bg: rgba(30, 41, 59, 0.8);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(217, 70, 239, 0.2) 0%, transparent 50%);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-xl);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 450px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            font-size: 1.5rem;
+        }
+
+        button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .item {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #8b5cf6;
+            transition: transform 0.2s ease;
+        }
+
+        .item:hover {
+            transform: translateX(5px);
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .item-body {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-value {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+        
+        .api-explorer {
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .code {
+            font-family: 'Fira Code', monospace;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            overflow-x: auto;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+        
+        .highlight {
+            color: #d946ef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 DummyJSON 프로미스 탐색기</h1>
+            <p class="subtitle">프로미스 체이닝과 프로미스 API를 활용한 실시간 데이터 시각화</p>
+        </header>
+        
+        <div class="dashboard">
+            <!-- 사용자 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">👤 사용자</h2>
+                    <button id="loadUsers">불러오기</button>
+                </div>
+                <div id="users-spinner" class="spinner"></div>
+                <div id="users-error" class="error-message"></div>
+                <div id="users-container"></div>
+            </div>
+            
+            <!-- 포스트 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">📝 포스트</h2>
+                    <button id="loadPosts">불러오기</button>
+                </div>
+                <div id="posts-spinner" class="spinner"></div>
+                <div id="posts-error" class="error-message"></div>
+                <div id="posts-container"></div>
+            </div>
+            
+            <!-- 할일 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">✅ 할일 목록</h2>
+                    <button id="loadTodos">불러오기</button>
+                </div>
+                <div id="todos-spinner" class="spinner"></div>
+                <div id="todos-error" class="error-message"></div>
+                <div id="todos-container"></div>
+            </div>
+        </div>
+        
+        <div class="api-explorer">
+            <h2>⚡ 프로미스 API 탐색기</h2>
+            <button id="explorePromiseAPI">모든 데이터 동시에 로드</button>
+            <div id="api-spinner" class="spinner"></div>
+            <div id="api-error" class="error-message"></div>
+            <div class="progress-bar">
+                <div id="api-progress" class="progress-value"></div>
+            </div>
+            <div id="api-results"></div>
+            <div class="code">
+                <pre><span class="highlight">// Promise.all 사용 예시</span>
+Promise.all([
+  fetch('https://dummyjson.com/users').then(res => res.json()),
+  fetch('https://dummyjson.com/posts').then(res => res.json()),
+  fetch('https://dummyjson.com/todos').then(res => res.json())
+])
+.then(([users, posts, todos]) => {
+  console.log('모든 API 호출 완료!');
+})
+.catch(error => console.error('에러 발생:', error));</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 유틸리티 함수
+        function showSpinner(id) {
+            document.getElementById(`${id}-spinner`).style.display = 'block';
+        }
+        
+        function hideSpinner(id) {
+            document.getElementById(`${id}-spinner`).style.display = 'none';
+        }
+        
+        function showError(id, message) {
+            const errorEl = document.getElementById(`${id}-error`);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+        
+        function hideError(id) {
+            document.getElementById(`${id}-error`).style.display = 'none';
+        }
+        
+        // 사용자 로드 - 프로미스 체이닝 예시
+        document.getElementById('loadUsers').addEventListener('click', function() {
+            const containerId = 'users';
+            showSpinner(containerId);
+            hideError(containerId);
+            
+            // 프로미스 체이닝 예시 - 사용자 데이터 불러오기
+            fetch('https://dummyjson.com/users?limit=5')
+                .then(response => {
+                    if (!response.ok) throw new Error('네트워크 응답 에러');
+                    return response.json();
+                })
+                .then(data => {
+                    // 첫 번째 사용자의 상세 정보 가져오기
+                    const firstUserId = data.users[0].id;
+                    return Promise.all([
+                        data,
+                        fetch(`https://dummyjson.com/users/${firstUserId}`).then(res => res.json())
+                    ]);
+                })
+                .then(([allUsers, firstUserDetail]) => {
+                    renderUsers(allUsers.users, firstUserDetail);
+                    hideSpinner(containerId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError(containerId, `데이터를 불러오는 중 오류 발생: ${error.message}`);
+                    hideSpinner(containerId);
+                });
+        });
+        
+        // 포스트 로드
+        document.getElementById('loadPosts').addEventListener('click', function() {
+            const containerId = 'posts';
+            showSpinner(containerId);
+            hideError(containerId);
+            
+            // 프로미스 체이닝 - 포스트 데이터 불러오기 후 작성자 정보 추가
+            fetch('https://dummyjson.com/posts?limit=5')
+                .then(response => {
+                    if (!response.ok) throw new Error('네트워크 응답 에러');
+                    return response.json();
+                })
+                .then(postsData => {
+                    // 각 포스트의 작성자 정보를 가져오기 위한 프로미스 배열 생성
+                    const authorPromises = postsData.posts.map(post => 
+                        fetch(`https://dummyjson.com/users/${post.userId}`).then(res => res.json())
+                    );
+                    
+                    // 포스트 데이터와 작성자 정보를 함께 반환
+                    return Promise.all([postsData, Promise.all(authorPromises)]);
+                })
+                .then(([postsData, authors]) => {
+                    // 포스트 데이터에 작성자 정보 합치기
+                    const postsWithAuthors = postsData.posts.map((post, index) => ({
+                        ...post,
+                        author: authors[index]
+                    }));
+                    
+                    renderPosts(postsWithAuthors);
+                    hideSpinner(containerId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError(containerId, `데이터를 불러오는 중 오류 발생: ${error.message}`);
+                    hideSpinner(containerId);
+                });
+        });
+        
+        // 할일 로드
+        document.getElementById('loadTodos').addEventListener('click', function() {
+            const containerId = 'todos';
+            showSpinner(containerId);
+            hideError(containerId);
+            
+            // 타임아웃이 있는 프로미스 레이스 예시
+            Promise.race([
+                fetch('https://dummyjson.com/todos?limit=8').then(res => res.json()),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('요청 시간 초과')), 5000))
+            ])
+                .then(data => {
+                    renderTodos(data.todos);
+                    hideSpinner(containerId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError(containerId, `데이터를 불러오는 중 오류 발생: ${error.message}`);
+                    hideSpinner(containerId);
+                });
+        });
+        
+        // 프로미스 API 탐색기 - 모든 데이터 동시에 로드
+        document.getElementById('explorePromiseAPI').addEventListener('click', function() {
+            const containerId = 'api';
+            showSpinner(containerId);
+            hideError(containerId);
+            document.getElementById('api-progress').style.width = '0%';
+            document.getElementById('api-results').innerHTML = '';
+            
+            // 3개의 API 요청을 Promise.all로 동시에 처리
+            const startTime = performance.now();
+            
+            // 진행상황을 추적하기 위한 카운터
+            let completedRequests = 0;
+            const totalRequests = 3;
+            
+            // 각 요청에 진행상황 업데이트 로직 추가
+            function trackProgress() {
+                completedRequests++;
+                const progress = (completedRequests / totalRequests) * 100;
+                document.getElementById('api-progress').style.width = `${progress}%`;
+            }
+            
+            Promise.all([
+                fetch('https://dummyjson.com/users?limit=3')
+                    .then(res => res.json())
+                    .then(data => {
+                        trackProgress();
+                        return data;
+                    }),
+                fetch('https://dummyjson.com/posts?limit=3')
+                    .then(res => res.json())
+                    .then(data => {
+                        trackProgress();
+                        return data;
+                    }),
+                fetch('https://dummyjson.com/todos?limit=3')
+                    .then(res => res.json())
+                    .then(data => {
+                        trackProgress();
+                        return data;
+                    })
+            ])
+                .then(([users, posts, todos]) => {
+                    const endTime = performance.now();
+                    const duration = ((endTime - startTime) / 1000).toFixed(2);
+                    
+                    document.getElementById('api-results').innerHTML = `
+                        <div class="item">
+                            <div class="item-title">✅ 병렬 API 호출 성공</div>
+                            <div class="item-body">
+                                <p>3개의 API를 동시에 호출하여 ${duration}초만에 완료했습니다.</p>
+                                <p>사용자: ${users.total}, 포스트: ${posts.total}, 할일: ${todos.total}</p>
+                            </div>
+                        </div>
+                    `;
+                    hideSpinner(containerId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError(containerId, `데이터를 불러오는 중 오류 발생: ${error.message}`);
+                    hideSpinner(containerId);
+                });
+        });
+        
+        // 렌더링 함수들
+        function renderUsers(users, firstUserDetail) {
+            const container = document.getElementById('users-container');
+            
+            // 상세 정보가 있는 첫 번째 사용자 표시
+            let html = `
+                <div class="item" style="border-left-color: #d946ef;">
+                    <div class="user-info">
+                        <div class="user-avatar">${firstUserDetail.firstName.charAt(0)}${firstUserDetail.lastName.charAt(0)}</div>
+                        <div>
+                            <div class="user-name">${firstUserDetail.firstName} ${firstUserDetail.lastName}</div>
+                            <div class="user-email">${firstUserDetail.email}</div>
+                        </div>
+                    </div>
+                    <div class="item-body">
+                        <p>🏠 ${firstUserDetail.address.address}, ${firstUserDetail.address.city}</p>
+                        <p>📱 ${firstUserDetail.phone}</p>
+                    </div>
+                    <div class="item-meta">
+                        <span>회사: ${firstUserDetail.company.name}</span>
+                        <span class="badge badge-success">${firstUserDetail.gender}</span>
+                    </div>
+                </div>
+            `;
+            
+            // 나머지 사용자 표시
+            users.slice(1).forEach(user => {
+                html += `
+                    <div class="item">
+                        <div class="user-info">
+                            <div class="user-avatar">${user.firstName.charAt(0)}${user.lastName.charAt(0)}</div>
+                            <div>
+                                <div class="user-name">${user.firstName} ${user.lastName}</div>
+                                <div class="user-email">${user.email}</div>
+                            </div>
+                        </div>
+                        <div class="item-meta">
+                            <span>나이: ${user.age}세</span>
+                            <span class="badge badge-${user.gender === 'male' ? 'success' : 'warning'}">${user.gender}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container');
+            
+            let html = '';
+            posts.forEach(post => {
+                html += `
+                    <div class="item">
+                        <div class="item-title">${post.title}</div>
+                        <div class="item-body">${post.body.substring(0, 100)}...</div>
+                        <div class="item-meta">
+                            <span>작성자: ${post.author.firstName} ${post.author.lastName}</span>
+                            <span>태그: ${post.tags.slice(0, 2).join(', ')}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function renderTodos(todos) {
+            const container = document.getElementById('todos-container');
+            
+            let html = '';
+            todos.forEach(todo => {
+                html += `
+                    <div class="item">
+                        <div class="item-title">
+                            ${todo.completed ? 
+                              '<span style="text-decoration: line-through;">' + todo.todo + '</span>' : 
+                              todo.todo
+                            }
+                        </div>
+                        <div class="item-meta">
+                            <span>사용자 ID: ${todo.userId}</span>
+                            <span class="badge badge-${todo.completed ? 'success' : 'warning'}">
+                                ${todo.completed ? '완료' : '진행중'}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

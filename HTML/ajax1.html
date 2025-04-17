@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        :root{
+            --primary-color : #a47764;
+            --sec-color : #8a4fff;
+            --background-gradient : linear-gradient(135deg, #f5f0ec 0%, #e8e2dd 100%);
+        }
+
+        body {
+            background-color : var(--background-gradient);
+            min-height : 100vh;
+            padding : 2rem;
+        }
+
+        .wrapper {
+            max-width : 1200px;
+            margin : 0 auto;
+        }
+
+        h1 {
+            color : var(--primary-color);
+            font-size : 2.5rem;
+            margin-bottom : 2rem;
+            text-align : center;
+        }
+
+        .container {
+            border-radius : 10px;
+            background-color: white;
+            padding : 10px;
+            margin : 10px;
+        }
+
+        .content {
+            border: 1px solid var(--primary-color);
+            border-radius: 10px;
+            min-height : 40px;
+        }
+
+        .user-card {
+            display: flex;
+            padding : 10px;
+        }
+
+        .user-item {
+            width : 200px;
+            height : 200px;
+            border-radius: 15px;
+            background-color: aliceblue;
+            padding : 5px;
+            text-align: center;
+        }
+
+        input[type=button] {
+            border: none;
+            border-radius: 15px;
+            background-color: var(--sec-color);
+            padding : 10px;
+            margin : 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div>
+            <h1>모던 API 호출 데모</h1>
+        </div>
+        <section class="container">
+            <h4>Vanilla JavaScript (XMLHttpRequest)</h4>
+            <input type="button" onclick="xhr()" value="사용자 데이터 가져오기">
+            <div class="content">
+                <div class="user-card" id="xhr-result"></div>
+            </div>
+        </section>
+        <section class="container">
+            <h4>Axios 라이브러리</h4>
+            <input type="button" onclick="" value="사용자 데이터 가져오기">
+            <div class="content">
+                <div class="user-card"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+
+        function xhr() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://jsonplaceholder.typicode.com/users'); // 전송방식, 주소지정
+            xhr.onload = function() { // 반환 받은 데이터 처리
+                if(xhr.status === 200) {
+                    const users = JSON.parse(xhr.responseText);
+                    console.log(users);
+                    displayUsers(users, 'xhr-result');
+                }else {
+                    alert("요청에 실패했습니다.");
+                }
+            }
+            xhr.onerror = function() {
+                alert("네트워크 에러 발생");
+            }
+            xhr.send(); // 요청전송
+        }
+
+        function displayUsers(users, conId) {
+            console.log("dispalayUsers 호출 여부");
+            const con1 = document.getElementById(conId);
+            con1.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <h3>${user.name}</h3>
+                    <p> ${user.email}</p>
+                    <p> ${user.company.name}</p>
+                    <p> ${user.website}</p>
+                </div>
+            `).join(``);
+        }
+
+        function axios() {
+
+        }
+
+
+        // btn.addEventListener('click', function(){
+//     let xhr = new XMLHttpRequest();
+//     let crs = '';
+
+
+//     xhr.onreadystatechange = function(){
+//         switch(xhr.readyState){ // readyState 프로퍼티는 객체의 상태값을 가지고있음.
+
+//         case xhr.UNSENT: // 호출전
+//             console.log("unSET");
+//             break;
+
+//         case xhr.OPENED:
+//             console.log("오픈!");
+//             break;    
+
+//         case xhr.HEADERS_RECEIVED:
+//             console.log("헤더 전송");
+//             break;
+        
+//         case xhr.LOADING:
+//             console.log("로딩");
+//             break;
+        
+//         case xhr.DONE:
+//             console.log("완료");
+//             break;
+
+//         }
+
+//         document.querySelector("#ajaxtest").innerHTML +=crs;
+//     }
+
+//     xhr.open('get', 'https://jsonplaceholder.typicode.com/users135?id=1');
+//     xhr.setRequestHeader('Content-type', 'application/json');
+//     xhr.send();
+
+// })
+    </script>
+</body>
+</html>

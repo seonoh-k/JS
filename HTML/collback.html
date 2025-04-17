@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 
+        콜백 : 함수의 실행 순서를 제어하는 개념
+        - 파라미터로 함수를 전달받아 함수의 내부에서 실행하는 함수 (콜백함수) 
+        - 비동기전송방식 스케쥴링 기법
+
+        사용 이유
+        - js의 특성상 필요한 순간이 제법 많음
+          (싱글 스레드 방식을 채용한 언어이다보니 실행 순서 조정이 필요할 수 있다.)
+        - 함수 사용의 또 다른 패턴
+        - 코드 재사용성 극대화 (자원 활용 효율성 증대)
+        - 비동기 처리 (이벤트 A를 제어하는 동안 이벤트 B,C,D가 중단되지 않도록 설정이 필요)
+
+        콜백함수 사용원칙
+        1. 익명함수를 특정한 상황에서 사용하는 경우
+        2. 함수의 이름만 살짝 넘겨준다는 느낌으로 사용
+
+        콜백 활용 시 주의사항
+        - 콜백헬 주의
+            => 콜백헬 : 콜백함수 혹은 콜백을 구현한 코드들이 너무 많이 중첩되는 경우
+    -->
+</body>
+<script>
+//  콜백헬 예시
+//  loadScript('1.js', function(error, script) {
+
+//     if (error) {
+//       handleError(error);
+//     } else {
+//       // ...
+//       loadScript('2.js', function(error, script) {
+//         if (error) {
+//           handleError(error);
+//         } else {
+//           // ...
+//           loadScript('3.js', function(error, script) {
+//             if (error) {
+//               handleError(error);
+//             } else {
+//               // 모든 스크립트가 로딩된 후, 실행 흐름이 이어집니다. (*)
+//             }
+//           });
+  
+//         }
+//       })
+//     }
+//   });
+</script>
+</html>

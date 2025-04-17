@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    프로미스 관련 API (메소드)
+    - Promise.all : 여러 URL에 동시에 요청을 진행할 때 사용
+        -> 여러개의 프로미스를 동시에 실행시키고 완료 처리 시 사용
+    - Promise.race : all과 비슷하게 동작하지만 가장 먼저 처리된 프로미스의 결과를 리턴
+    - Promise.allSettled : all을 보완한 메소드 -> 응답 실패 시 전체 취소
+    - Promise.any : 여러개의 요청 중 가장 빨리 성공한 것만 리턴 -> race와의 차이점은 성공여부
+</body>
+</html>

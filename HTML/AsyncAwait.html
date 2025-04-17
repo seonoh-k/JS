@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AsyncAwait</title>
+</head>
+<body>
+    프로미스의 문제점
+     - 코드 유지보수성 이슈.
+       (프로미스 체이닝의 난해함과 복잡성이슈)
+     - 난이도 이슈.
+       (굳이 이걸해야하나 싶었다는 개발자들이 있었음.)
+
+     async/await
+      - 프로미스보다 훨씬 쉽게 비동기 전송방식 구현을 위해 나온 키워드
+     async/await 사용법
+    1. 프로미스화 하고 싶은 함수 앞에 async 키워드를 붙임
+    2. await 키워드를 통해 대기 상태를 처리.
+
+    async : 프로미스 객체를 상시 리턴하도록 처리하는 키워드.(프로미스 요약본)
+    await : then을 쓰지않고 resolve, reject의 결과를 가져오도록 도움주는 키워드
+       
+
+    <script>
+        async function test(){
+            const res = await fetch("https://jsonplaceholder.typicode.com/users");
+            console.log(res);
+            const data = await res.json();
+            console.log(data);
+        }
+        test();
+    </script>
+
+</body>
+</html>

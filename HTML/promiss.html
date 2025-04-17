@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    프로미스 : 약속
+        -> 콜백의 문제점을 해결하기 위해 나온 객체
+        -> js에서 비동기 연산의 최종 완료나 실패를 표현하는 객체
+    
+    현재는 뭐가 나올지 알 수 없지만 추후 결과를 반드시 제공하는 개념을 구현한 객체
+
+    프로미스의 상태관리 시스템
+        -> 작업진행(초기상태) / 성공 / 실패
+
+    1. 작업진행(초기상태) : Pending
+        -> 결과가 어떻게 나올지 알 수 없음 (미정)
+    2. 작업 성공 : Fullfilled
+        -> resolve 호출 시 작업 성공 상태로 변경
+    3. 작업 실패 : Rejected
+        -> reject 호출 시 작업 실패 상태로 변경
+    
+    <script>
+        const promiseAjax = (method, url, payload) => {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open(method, url);
+                xhr.setRequestHeader('Content-type', 'application/json');
+                xhr.send(JSON.stringify(payload));
+                
+                xhr.onreadystatechange = function () {
+                // 서버 응답 완료가 아니면 무시
+                    if (xhr.readyState !== XMLHttpRequest.DONE) return;
+
+                    if (xhr.status >= 200 && xhr.status < 400) {
+                        // resolve 메소드를 호출하면서 처리 결과를 전달
+                        resolve(xhr.response); // Success!
+                    } else {
+                        // reject 메소드를 호출하면서 에러 메시지를 전달
+                        reject(new Error(xhr.status)); // Failed...
+                    }
+                };
+            })
+        }
+
+        promiseAjax('get', 'https://dummyjson.com/products/1.')
+            .then((test) => {
+                // resolve가 실행되면 여기가 실행된다.
+                console.log(test);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+            .finally(() => {
+
+            })
+    </script>
+</body>
+</html>
