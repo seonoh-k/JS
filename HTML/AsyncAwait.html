@@ -16,21 +16,135 @@
       - 프로미스보다 훨씬 쉽게 비동기 전송방식 구현을 위해 나온 키워드
      async/await 사용법
     1. 프로미스화 하고 싶은 함수 앞에 async 키워드를 붙임
+      - async 키워드를 쓰는 순간 해당 함수는 항상 프로미스 객체를 리턴
+      - 하지만 내부에 명시적으로 프로미스 객체 리턴 처리도 가능
     2. await 키워드를 통해 대기 상태를 처리.
+      - await는 프로미스가 처리될때까지 기다린 후 응답으로 받아온 결과를 저장하는 키워드
 
     async : 프로미스 객체를 상시 리턴하도록 처리하는 키워드.(프로미스 요약본)
     await : then을 쓰지않고 resolve, reject의 결과를 가져오도록 도움주는 키워드
        
-
+    <br><img src="" class="avatar">
+    <br><img src="" class="avatar2">
+    
     <script>
-        async function test(){
-            const res = await fetch("https://jsonplaceholder.typicode.com/users");
-            console.log(res);
-            const data = await res.json();
-            console.log(data);
-        }
-        test();
-    </script>
+      // 제너레이트 방식. 이터레이터와 비슷하다고 봐도 무방
+        // async function test(){
+        //     const res = await fetch("https://jsonplaceholder.typicode.com/users");
+        //     console.log(res);
+        //     const data = await res.json();
+        //     console.log(data);
+        // }
+        // test();
 
+        // const API_URL = `https://api.github.com/users/jmcho2010`;
+
+        // async function getAvatar() {
+        //   const res = await fetch(API_URL);
+        //   console.log(res);
+        //   const data = await res.json();
+        //   console.log(data.avatar_url);
+          
+        //   const avatar = document.querySelector(".avatar");
+        //   avatar.src = data.avatar_url;
+        // }
+
+        // getAvatar();
+        
+        // function getGit() {
+        //   return new Promise((resolve, reject) => {
+        //     fetch(API_URL)
+        //       .then(res => {
+        //         if(!res.status >= 200 && res.status < 400) {
+        //           reject(new Error("응답이 없습니다."));
+        //         }else {
+        //           return res.json();
+        //         }
+        //       })
+        //       .then(data => {
+        //         resolve(data);
+        //       })
+        //       .catch(error => {
+        //         reject(error);
+        //       })
+        //   })
+        // }
+
+        // getGit()
+        //   .then(user => {
+        //     console.log("유저 이름 :", user.login);
+        //     console.log("프사 이미지 :", user.avatar_url);
+            
+        //     const avatar2 = document.querySelector(".avatar2");
+        //     avatar2.src = user.avatar_url;
+        //   })
+        //   .catch(error => {
+        //     console.log("에러 :", error.message);
+        //   })
+
+        // function loadJSON(url) {
+        //   return fetch(url)
+        //           .then(res => res.json())
+        // }
+
+        // function loadGitHubUser(name) {
+        //   return fetch(`https://api.github.com/users/${name}`)
+        //           .then(res => res.json())
+        // }
+
+        // function showAvatar(gitHubUser) {
+        //   return new Promise((resolve, reject) => {
+        //     let img = document.createElement('img');
+        //     img.src = gitHubUser.avatar_url;
+        //     img.className = "promise-avatar-example";
+        //     document.body.append(img);
+
+        //     setTimeout(() => {
+        //       img.remove();
+        //       resolve(gitHubUser);
+        //     }, 3000);
+        //   })
+        // }
+
+        // loadJSON('user.json')
+        //   .then(name => {
+        //     console.log("====");
+        //     console.log('유저 이름 :', name);
+        //     return showAvatar(loadGitHubUser(name.username));
+        //   })
+        //   .then(gitHubUser => alert(`이 유저의 프사를 띄웁니다 ${gitHubUser.login}`))
+
+        async function showAvatar(){
+
+          // await 키워드로 then 처리를 생략.
+          // 데이터가 여러건이라해도 어차피 async가 반복자(이터러블) 이기 때문에
+          // 여러건의 데이터를 불러오는것 또한 문제없음
+          try {
+            let response = await fetch('user.json');
+            let user = await response.json();
+
+            let githubRes = await fetch(`https://api.github.com/users/${user.username}`)
+            let githubUser = await githubRes.json();
+
+            let img = document.createElement('img');
+            img.src = githubUser.avatar_url;
+            img.className = "promise-avatar-example";
+            document.body.append(img);
+
+            // async await라고 해서 후속처리를 안쓰는것은 아님.
+            // async/await + 체이닝도 가능.
+            // await는 then 메서드 자체를 상시 사용가능하도록 처리.
+            await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+
+            //img.remove();
+
+            return githubUser;
+          } catch (error) {
+            alert("에러발생");
+          }
+        }
+
+        showAvatar();
+    </script>
 </body>
 </html>
