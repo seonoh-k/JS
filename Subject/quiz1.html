@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DummyJSON 마켓</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS 코드는 아래에 작성 */
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --background-color: #f9f9f9;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        #search {
+            padding: 0.5rem;
+            width: 300px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #category-filter {
+            padding: 0.5rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+        }
+
+        .cart-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 300px;
+            padding: 1rem;
+            border-radius: 5px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>DummyJSON 마켓</h1>
+        <div class="cart-icon" id="cart-icon">
+            🛒 장바구니
+            <span class="cart-count" id="cart-count">0</span>
+            <div class="cart-dropdown" id="cart-dropdown"></div>
+        </div>
+    </header>
+
+    <div class="search-filter">
+        <input 
+            type="text" 
+            id="search" 
+            placeholder="상품 검색..."
+        >
+        <select id="category-filter">
+            <option value="">모든 카테고리</option>
+        </select>
+    </div>
+
+    <div class="products-grid" id="products-grid"></div>
+
+    <script>
+        // API URL
+        const API_URL = 'https://dummyjson.com/products';
+        
+        // 전역 변수
+        let allProducts = [];
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        // 장바구니 카운트
+        const cartCount = document.querySelector("#cart-count");
+        // 장바구니 목록
+        const cartDropdown = document.querySelector("#cart-dropdown");
+        const cartIcon = document.querySelector("#cart-icon");
+        // 검색창
+        const searchFilter = document.querySelector("#search-filter");
+        // select
+        const categoryFilter = document.querySelector("#category-filter");
+
+        // TODO: 아래 함수들을 구현하세요
+        // 1. 상품 데이터 가져오기
+        async function getProducts(url) {
+            const res = await fetch(url);
+
+            if(!res.ok) {
+                throw new Error('HTTP 응답 없음 : ', res.status);
+            }
+
+            const data = await res.json();
+            allProducts = data.products;
+            display(allProducts);
+        }
+
+        getProducts(API_URL);
+
+        // 2. 상품 카드 생성
+        function display(products) {
+            const productsDiv = document.querySelector("#products-grid");
+
+            productsDiv.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="relative overflow-hidden rounded-2xl mb-6 h-60">
+                        <img src="${product.thumbnail}" 
+                            class="product-image">
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-black mb-2">${product.title}</h3>
+                    <p class="text-gray-400 text-sm mb-4 line-clamp-2">${product.description}</p>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-2xl font-bold bg-gradient-to-r from-pink-400 to-purple-400 
+                                    bg-clip-text text-transparent">
+                                $${product.price}
+                            </span>
+                            <span class="text-gray-400 line-through">$${Math.round(product.price * 1.2)}</span>
+                        </div>
+                        <div class="flex items-center text-yellow-400">
+                            ${'★'.repeat(Math.round(product.rating))}${'☆'.repeat(5 - Math.round(product.rating))}
+                        </div>
+                    </div>
+                    <div>
+                        <input type="button" value="Add to Cart" onclick="addCart(${product.id})">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 3. 검색 및 필터 기능
+        searchFilter.addEventListener('keydown', async function(){
+            const keyword = searchFilter.value.toLowerCase();
+            console.log("keyword :", keyword);
+            console.log("allProducts :", allProducts);
+            const productsList = allProducts.filter(product => product.tilte.toLowerCase().includes(keyword));
+            console.log(productList);
+            display(productsList);
+        })
+
+        // 4. 장바구니 기능
+        // 장바구니 추가
+        async function addCart(productId) {
+            // 클릭한 버튼의 상품 아이디로 특정 상품 데이터 가져오기
+            const res = await fetch(`https://dummyjson.com/products/${productId}`);
+
+            if(!res.ok){
+                throw new Error('해당 데이터가 없습니다. : ', res.status);
+            }
+
+            const data = await res.json();
+            cart.push(data); // 장바구니에 상품 추가
+            cartCount.innerHTML = cart.length; // 카트 카운트 변경
+
+            insertCart(cart);
+        }
+
+        // 장바구니 리스트 추가
+        function insertCart(list) {
+            cartDropdown.innerHTML = list.map(cart => `
+                <div class="cart-item" id="cart-item">
+                    <p>${cart.title}</p>
+                </div>
+            `).join('');
+        }
+
+        // 장바구니 목록 출력
+        cartIcon.addEventListener('mouseenter', function(){
+            cartDropdown.style.display = 'block';
+        })
+
+        cartIcon.addEventListener('mouseleave', function(){
+            cartDropdown.style.display = 'none';
+        })
+        // 5. 초기화 함수
+    </script>
+</body>
+</html>
