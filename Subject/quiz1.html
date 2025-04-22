@@ -110,6 +110,7 @@
             justify-content: space-between;
             padding: 0.5rem 0;
             border-bottom: 1px solid #eee;
+            color : black;
         }
     </style>
 </head>
@@ -150,13 +151,15 @@
         const cartDropdown = document.querySelector("#cart-dropdown");
         const cartIcon = document.querySelector("#cart-icon");
         // 검색창
-        const searchFilter = document.querySelector("#search-filter");
+        const searchFilter = document.querySelector("#search");
         // select
         const categoryFilter = document.querySelector("#category-filter");
+        // h1
+        const title = document.querySelector("h1");
 
         // TODO: 아래 함수들을 구현하세요
         // 1. 상품 데이터 가져오기
-        async function getProducts(url) {
+        async function getData(url) {
             const res = await fetch(url);
 
             if(!res.ok) {
@@ -165,10 +168,10 @@
 
             const data = await res.json();
             allProducts = data.products;
-            display(allProducts);
+            display(data.products);
         }
 
-        getProducts(API_URL);
+        getData(API_URL);
 
         // 2. 상품 카드 생성
         function display(products) {
@@ -204,14 +207,53 @@
         }
 
         // 3. 검색 및 필터 기능
+        // 검색 기능
         searchFilter.addEventListener('keydown', async function(){
+            // 입력값 저장
             const keyword = searchFilter.value.toLowerCase();
-            console.log("keyword :", keyword);
-            console.log("allProducts :", allProducts);
-            const productsList = allProducts.filter(product => product.tilte.toLowerCase().includes(keyword));
-            console.log(productList);
+            // 입력값을 포함하는 데이터 추출
+            const productsList = allProducts.filter(product => product.title.toLowerCase().includes(keyword))
+            // 결과 데이터 출력
             display(productsList);
-        })
+            
+        });
+
+        // 카테고리 option 추가
+        async function categoryList() {
+            // 카테고리 리스트 데이터 받아오기
+            const res = await fetch('https://dummyjson.com/products/category-list');
+            
+            if(!res.ok){
+                throw new Error('카테고리 정보가 없습니다. : ', res.status);
+            }
+
+            const categoryList = await res.json();
+            
+            // 기존 option 태그를 지우지 않기 위해 document.append 사용
+            categoryList.forEach(function(data){
+                let option = document.createElement('option');
+                option.value = data;
+                option.innerHTML = data;
+                categoryFilter.append(option);
+            });
+        }
+
+        categoryList();
+
+        // 카테고리 선택 시 해당 카테고리 상품 출력
+        categoryFilter.addEventListener('change', function(event){
+            // 선택한 option의 value값
+            const targetValue = event.target.value;
+
+            // value값이 ''라면
+            if(targetValue == ''){
+                getData(API_URL); // 메인 상품 리스트 출력
+            }else { // value값이 존재한다면
+                // 해당 카테고리의 상품 리스트 가져오기
+                const url =  `https://dummyjson.com/products/category/${targetValue}`;
+                getData(url); // 카테고리별 상품 리스트 출력
+            }
+        });
 
         // 4. 장바구니 기능
         // 장바구니 추가
@@ -220,7 +262,7 @@
             const res = await fetch(`https://dummyjson.com/products/${productId}`);
 
             if(!res.ok){
-                throw new Error('해당 데이터가 없습니다. : ', res.status);
+                throw new Error('해당 상품의 데이터가 없습니다. : ', res.status);
             }
 
             const data = await res.json();
@@ -231,23 +273,57 @@
         }
 
         // 장바구니 리스트 추가
-        function insertCart(list) {
-            cartDropdown.innerHTML = list.map(cart => `
-                <div class="cart-item" id="cart-item">
-                    <p>${cart.title}</p>
-                </div>
-            `).join('');
+        function insertCart(cart) {
+            // 장바구니에 상품이 존재한다면
+            if(cart.length > 0) {
+                // 장바구니 리스트 출력
+                cartDropdown.innerHTML = cart.map(product => `
+                    <div id="cart-item" class="cart-item">
+                        ${product.title}
+                        <div onclick="remove(${product.id})">X</div>
+                    </div>
+                `).join('');
+            }else { // 없다면 아무것도 출력하지 않음
+                cartDropdown.innerHTML = "";
+            }
         }
 
         // 장바구니 목록 출력
-        cartIcon.addEventListener('mouseenter', function(){
-            cartDropdown.style.display = 'block';
+        cartIcon.addEventListener('mouseenter', function(){ // 마우스 올리면
+            if(cart.length > 0){
+                cartDropdown.style.display = 'block'; // 장바구니 리스트 출력
+            }else {
+                cartDropdown.style.display = 'none';
+            }
         })
 
-        cartIcon.addEventListener('mouseleave', function(){
-            cartDropdown.style.display = 'none';
+        cartIcon.addEventListener('mouseleave', function(){ // 마우스 치우면
+            cartDropdown.style.display = 'none'; // 장바구니 리스트 숨김
         })
+        
+        // 장바구니 삭제
+        function remove(productId) {
+            // productId와 같은 아이디값을 가지는 상품 인덱스 가져오기
+            let idx = cart.findIndex(function(data){
+                if(data.id === productId){
+                    return true;
+                }
+            });
+
+            // 해당 인덱스의 데이터를 장바구니에서 삭제
+            cart.splice(idx, 1);
+            // 장바구니 내 상품 개수 변경
+            cartCount.innerHTML = cart.length;
+            // 변경된 장바구니 출력
+            insertCart(cart);
+        }
+
         // 5. 초기화 함수
+        title.addEventListener('click', function(){ // h1 태그 클릭 시
+            getData(API_URL); // 기본 상품 리스트 출력
+            categoryFilter.value = ""; // select 태그 기본값으로 변경
+            searchFilter.value = ""; // input 태그 기본값으로 변경
+        });
     </script>
 </body>
 </html>
